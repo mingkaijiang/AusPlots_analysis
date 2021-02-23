@@ -37,6 +37,13 @@ process_CSIRO_North_Queesland_rainforest_permanent_plots <- function(sourceDir,
     myDF3 <- read.csv(paste0(sourceDir, "CSIRO_PermanentPlots_UnderstoryData.csv"))
     myDF4 <- read.csv(paste0(sourceDir, "CSIRO_PermanentPlots_VoucherData.csv"))
     
+    
+    ### add information about site
+    metaDF <- read.csv(paste0(sourceDir, "metadataTable2.csv"))
+    
+    myDF1 <- merge(myDF1, metaDF, by="epNumber")
+    
+    
     ### create a dataset that contains tree mortality information
     tmpDF1 <- setDT(myDF1[myDF1$status=="Dead",])
     tmpDF1 <- tmpDF1[,c("epNumber", "stemNumber", "year")]
@@ -70,14 +77,103 @@ process_CSIRO_North_Queesland_rainforest_permanent_plots <- function(sourceDir,
         xlab("Last year of measurement before mortality")+
         ylab("DBH before mortality (cm)")+
         scale_color_viridis(name="Tree height at plot establishment (m)")+
-        annotate("text", x=1975, y = 200, 
+        annotate("text", x=1980, y = 200, 
                  label = paste0("Mortality rate = ", m.rate, "%"))+
         geom_smooth(mapping=aes(x=year, y=dbh_centimetres), method="loess", span=0.3)
     
     
-    pdf(paste0(outDir, "DBH_at_mortality.pdf"))
-    plot(p1)
-    dev.off()
+    p2 <- ggplot(myDF5, aes(x=MAT, y = dbh_centimetres, fill=as.factor(MAT))) +
+        geom_boxplot()+
+        theme_linedraw() +
+        theme(panel.grid.minor=element_blank(),
+              axis.title.x = element_text(size=12), 
+              axis.text.x = element_text(size=12),
+              axis.text.y=element_text(size=12),
+              axis.title.y=element_text(size=12),
+              legend.text=element_text(size=10),
+              legend.title=element_text(size=12),
+              panel.grid.major=element_blank(),
+              legend.position="none",
+              legend.text.align=0)+
+        xlab("MAT")+
+        ylab("DBH before mortality (cm)")
+    
+    p3 <- ggplot(myDF5, aes(x=MAP, y = dbh_centimetres, fill=as.factor(MAP))) +
+        geom_boxplot()+
+        theme_linedraw() +
+        theme(panel.grid.minor=element_blank(),
+              axis.title.x = element_text(size=12), 
+              axis.text.x = element_text(size=12),
+              axis.text.y=element_text(size=12),
+              axis.title.y=element_text(size=12),
+              legend.text=element_text(size=10),
+              legend.title=element_text(size=12),
+              panel.grid.major=element_blank(),
+              legend.position="none",
+              legend.text.align=0)+
+        xlab("MAP")+
+        ylab("DBH before mortality (cm)")
+    
+    
+    p4 <- ggplot(myDF5, aes(x=Altitude_m_asl, y = dbh_centimetres, fill=as.factor(Altitude_m_asl))) +
+        geom_boxplot()+
+        theme_linedraw() +
+        theme(panel.grid.minor=element_blank(),
+              axis.title.x = element_text(size=12), 
+              axis.text.x = element_text(size=12),
+              axis.text.y=element_text(size=12),
+              axis.title.y=element_text(size=12),
+              legend.text=element_text(size=10),
+              legend.title=element_text(size=12),
+              panel.grid.major=element_blank(),
+              legend.position="none",
+              legend.text.align=0)+
+        xlab("Altitude")+
+        ylab("DBH before mortality (cm)")
+    
+    p5 <- ggplot(myDF5, aes(x=as.character(wetTropicsEndemic), y = dbh_centimetres, fill=as.character(wetTropicsEndemic))) +
+        geom_boxplot()+
+        theme_linedraw() +
+        theme(panel.grid.minor=element_blank(),
+              axis.title.x = element_text(size=12), 
+              axis.text.x = element_text(size=12),
+              axis.text.y=element_text(size=12),
+              axis.title.y=element_text(size=12),
+              legend.text=element_text(size=10),
+              legend.title=element_text(size=12),
+              panel.grid.major=element_blank(),
+              legend.position="none",
+              legend.text.align=0)+
+        scale_x_discrete("wet tropics endemic", labels = c("0" = "No", "1" = "yes"))+
+        xlab("Altitude")+
+        ylab("DBH before mortality (cm)")
+    
+    
+    p6 <- ggplot(myDF5, aes(x=epNumber, y = dbh_centimetres, fill=epNumber)) +
+        geom_boxplot()+
+        theme_linedraw() +
+        theme(panel.grid.minor=element_blank(),
+              axis.title.x = element_text(size=12), 
+              axis.text.x = element_text(size=12),
+              axis.text.y=element_text(size=12),
+              axis.title.y=element_text(size=12),
+              legend.text=element_text(size=10),
+              legend.title=element_text(size=12),
+              panel.grid.major=element_blank(),
+              legend.position="none",
+              legend.text.align=0)+
+        xlab("EP plot number")+
+        ylab("DBH before mortality (cm)")
+    
+
+    
+    combined_plot <- plot_grid(p1, p2, p3, p4, p5, p6,
+                               ncol=2, align="vh", axis = "l")
+    
+    save_plot(paste0(outDir, "mortality_summary.pdf"),
+              combined_plot, base_width=10, base_height = 12)
+    
+    
     
     ### plot density plot
     myDF5$Dataset <- "Mortality"
@@ -109,6 +205,13 @@ process_CSIRO_North_Queesland_rainforest_permanent_plots <- function(sourceDir,
     animate(p2, fps = 10, width = 750, height = 450,renderer = gifski_renderer())
     anim_save(paste0("animated_individual_DBH_mortality_alive.gif"), 
               animation=last_animation(), path=outDir)
+    
+    
+    ##################################### plot self thinning ##################################### 
+    ### add patch area information
+    
+    
+    
     
     
     
