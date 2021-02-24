@@ -39,10 +39,18 @@ process_CSIRO_North_Queesland_rainforest_permanent_plots <- function(sourceDir,
     
     
     ### add information about site
-    metaDF <- read.csv(paste0(sourceDir, "metadataTable2.csv"))
+    metaDF1 <- read.csv(paste0(sourceDir, "metadataTable1.csv"))
+    metaDF2 <- read.csv(paste0(sourceDir, "metadataTable2.csv"))
+    metaDF <- merge(metaDF1, metaDF2, by=c("epNumber", "PlotName"))
     
     myDF1 <- merge(myDF1, metaDF, by="epNumber")
     
+    ### calculate number of stems per plot and per hectare
+    stemDF <- count(myDF1, c("epNumber", "year"))
+    names(stemDF)[3] <- "NumberStems_ha"
+    stemDF$NumberStems_ha <- stemDF$NumberStems_ha * 2
+    myDF1 <- merge(myDF1, stemDF, by=c("epNumber", "year"))
+
     
     ### create a dataset that contains tree mortality information
     tmpDF1 <- setDT(myDF1[myDF1$status=="Dead",])
@@ -165,7 +173,6 @@ process_CSIRO_North_Queesland_rainforest_permanent_plots <- function(sourceDir,
         xlab("EP plot number")+
         ylab("DBH before mortality (cm)")
     
-
     
     combined_plot <- plot_grid(p1, p2, p3, p4, p5, p6,
                                ncol=2, align="vh", axis = "l")
@@ -208,11 +215,110 @@ process_CSIRO_North_Queesland_rainforest_permanent_plots <- function(sourceDir,
     
     
     ##################################### plot self thinning ##################################### 
-    ### add patch area information
+    sumDF <- summaryBy(dbh_centimetres+NumberStems_ha~epNumber+year, data=myDF1, FUN=c(mean, sd),
+                       keep.names=T, na.rm=T)
+    
+    p1 <- ggplot() +
+        geom_point(sumDF, mapping = aes(dbh_centimetres.mean, NumberStems_ha.mean, col=year))+
+        theme_linedraw() +
+        theme(panel.grid.minor=element_blank(),
+              axis.title.x = element_text(size=12), 
+              axis.text.x = element_text(size=12),
+              axis.text.y=element_text(size=12),
+              axis.title.y=element_text(size=12),
+              legend.text=element_text(size=10),
+              legend.title=element_text(size=12),
+              panel.grid.major=element_blank(),
+              legend.position="right",
+              legend.text.align=0)+
+        xlab("Mean DBH (cm)")+
+        ylab("Number of stems (ha-1)")+
+        transition_time(year)+
+        labs(title = "year: {frame_time}")+
+        shadow_wake(wake_length = 0.1, alpha = FALSE)
     
     
+    ## save animation
+    animate(p1, fps = 10, width = 750, height = 450, renderer = gifski_renderer())
+    anim_save("animated_thinning_with_year.gif", 
+              animation=last_animation(), path=outDir)
+    
+    ### use height as a proxy for age
+    p1 <- ggplot() +
+        geom_point(sumDF, mapping = aes(dbh_centimetres.mean, NumberStems_ha.mean, col=year))+
+        theme_linedraw() +
+        theme(panel.grid.minor=element_blank(),
+              axis.title.x = element_text(size=12), 
+              axis.text.x = element_text(size=12),
+              axis.text.y=element_text(size=12),
+              axis.title.y=element_text(size=12),
+              legend.text=element_text(size=10),
+              legend.title=element_text(size=12),
+              panel.grid.major=element_blank(),
+              legend.position="right",
+              legend.text.align=0)+
+        xlab("Mean DBH (cm)")+
+        ylab("Number of stems (ha-1)")
+    
+    pdf(paste0(outDir, "plot_DBH_stem_density.pdf"))
+    plot(p1)
+    dev.off()
     
     
+    ##################################### disturbance events ##################################### 
+    ### select drought sites
+    dDF <- myDF1[myDF1$epNumber%in%c("ep33", "ep40"),]
+    
+    ### plotting
+    p1 <- ggplot() +
+        geom_point(dDF, mapping = aes(year, NumberStems_ha, col=epNumber))+
+        theme_linedraw() +
+        theme(panel.grid.minor=element_blank(),
+              axis.title.x = element_text(size=12), 
+              axis.text.x = element_text(size=12),
+              axis.text.y=element_text(size=12),
+              axis.title.y=element_text(size=12),
+              legend.text=element_text(size=10),
+              legend.title=element_text(size=12),
+              panel.grid.major=element_blank(),
+              legend.position="right",
+              legend.text.align=0)+
+        xlab("Year")+
+        ylab("Number of stems (ha-1)")+
+        scale_color_manual("site", 
+                             breaks=c("ep33", "ep40"),
+                            values = c("blue2", "red3"))+
+        geom_vline(xintercept = 1995, lty = 1, col = "blue2")+
+        geom_vline(xintercept = 2006, lty = 1, col = "red3")
+    
+    
+    p2 <- ggplot() +
+        geom_point(dDF, mapping = aes(year, dbh_centimetres, col=epNumber))+
+        theme_linedraw() +
+        theme(panel.grid.minor=element_blank(),
+              axis.title.x = element_text(size=12), 
+              axis.text.x = element_text(size=12),
+              axis.text.y=element_text(size=12),
+              axis.title.y=element_text(size=12),
+              legend.text=element_text(size=10),
+              legend.title=element_text(size=12),
+              panel.grid.major=element_blank(),
+              legend.position="right",
+              legend.text.align=0)+
+        xlab("Year")+
+        ylab("DBH (cm)")+
+        scale_color_manual("site", 
+                           breaks=c("ep33", "ep40"),
+                           values = c("blue2", "red3"))+
+        geom_vline(xintercept = 1995, lty = 1, col = "blue2")+
+        geom_vline(xintercept = 2006, lty = 1, col = "red3")
+    
+    combined_plot <- plot_grid(p1, p2, 
+                               ncol=1, align="vh", axis = "l")
+    
+    save_plot(paste0(outDir, "mortality_due_to_drought.pdf"),
+              combined_plot, base_width=6, base_height = 8)
+
     
     
     # end

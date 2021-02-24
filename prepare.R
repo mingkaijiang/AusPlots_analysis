@@ -7,6 +7,7 @@ if(!dir.exists("output")) {
 #### Install packages
 if(!require(pacman))install.packages("pacman")
 pacman::p_load(dplyr, 
+               plyr,
                doBy, 
                lubridate,
                ggplot2,
