@@ -93,6 +93,13 @@ process_AEKOS_Subset_Australian_Plant_Frequency_and_Cover_2017 <- function(sourc
                          "ThreatPressureSeverityCategory", "ThreatPressureSeverityCategoryComment", "IndividualOccurrence",
                          "IndividualOccurrenceComment", "Size", "SexCategory", "SexComment", "MethodName", "IndividualOrganismComment")
     
+    ### drop individual files to save space
+    rm(indDF1)
+    rm(indDF2)
+    rm(indDF3)
+    rm(indDF4)
+    rm(indDF5)
+    rm(indDF6)
     
     ### remove all the comments
     indDF$CoordinateReliability <- NULL
@@ -130,10 +137,10 @@ process_AEKOS_Subset_Australian_Plant_Frequency_and_Cover_2017 <- function(sourc
     ### add unit information in the comment to remove unit columns
     ## convert all height into meter
     indDF$HeightValue <- as.numeric(indDF$HeightValue)
-    indDF$HeightValue <- ifelse(indDF$HeightValueUnits == "centimetres", 
-                                indDF$HeightValue / 100, 
-                                indDF$HeightValue)
-    indDF$HeightValueUnits <- NULL
+    indDF$HeightValue <- ifelse(indDF$HeightValueUnits == "metres", 
+                                indDF$HeightValue, 
+                                indDF$HeightValue  / 100)
+    #indDF$HeightValueUnits <- NULL
     
     ## all DBH in unit of cm
     indDF$DBHUnits <- NULL
@@ -157,9 +164,6 @@ process_AEKOS_Subset_Australian_Plant_Frequency_and_Cover_2017 <- function(sourc
     
     ## transect interval unit in meter
     indDF$TransectObservationIntervalUnits <- NULL
-    
-    ## bole height in meter
-    indDF$BoleHeightUnits <- NULL
     
     ## convert data into numeric
     indDF$Lon <- as.numeric(indDF$Lon)
@@ -311,37 +315,173 @@ process_AEKOS_Subset_Australian_Plant_Frequency_and_Cover_2017 <- function(sourc
     
     
     ### plot time series
-    test <- subset(mgDF, CustodianSiteID == "1")
+    #test <- subset(mgDF, CustodianSiteID == "1")
+    #
+    #test <- subset(mgDF, CustodianSiteID %in% c(1:100))
+    #
+    #test <- subset(mgDF, HeightValue.mean >= 3 & HeightValue.mean <= 20)
+    #
+    #p1 <- ggplot() +
+    #    geom_line(test, mapping = aes(VisitDate, HeightValue.mean, col=CustodianSiteID))+
+    #    #geom_errorbar(mgDF, mapping = aes(x=VisitDate, ymin=HeightValue.mean-HeightValue.sd,
+    #    #                                  ymax=HeightValue.mean+HeightValue.sd, col=CustodianSiteID))+
+    #    theme_linedraw() +
+    #    theme(panel.grid.minor=element_blank(),
+    #          axis.title.x = element_text(size=12), 
+    #          axis.text.x = element_text(size=12),
+    #          axis.text.y=element_text(size=12),
+    #          axis.title.y=element_text(size=12),
+    #          legend.text=element_text(size=10),
+    #          legend.title=element_text(size=12),
+    #          panel.grid.major=element_blank(),
+    #          legend.position="none",
+    #          legend.text.align=0)+
+    #    ylab("Mean height (m)")+
+    #    xlab("year")
+    #
+    #plot(p1)
+    #
+    #
+    #### check individual data to see why soem plots are so high
+    #test <- subset(indDF, CustodianSiteID == "1" & VisitDate == "1970-02-24")
     
-    test <- subset(mgDF, CustodianSiteID %in% c(1:100))
-    
-    test <- subset(mgDF, HeightValue.mean >= 3 & HeightValue.mean <= 20)
-    
-    p1 <- ggplot() +
-        geom_line(test, mapping = aes(VisitDate, HeightValue.mean, col=CustodianSiteID))+
-        #geom_errorbar(mgDF, mapping = aes(x=VisitDate, ymin=HeightValue.mean-HeightValue.sd,
-        #                                  ymax=HeightValue.mean+HeightValue.sd, col=CustodianSiteID))+
-        theme_linedraw() +
-        theme(panel.grid.minor=element_blank(),
-              axis.title.x = element_text(size=12), 
-              axis.text.x = element_text(size=12),
-              axis.text.y=element_text(size=12),
-              axis.title.y=element_text(size=12),
-              legend.text=element_text(size=10),
-              legend.title=element_text(size=12),
-              panel.grid.major=element_blank(),
-              legend.position="none",
-              legend.text.align=0)+
-        ylab("Mean height (m)")+
-        xlab("year")
-    
-    plot(p1)
+    ### comments:
+    ### currently, there is un-believable results on height (i.e. > 100 m),
+    ### which may be a data quality issue. 
+    ### so suspend results here. 
     
     
+    ### read in population datasets
+    popDF1 <- fread(paste0(sourceDir, "Vegetation-Populations/Vegetation-Populations_1.csv"))
+    popDF2 <- fread(paste0(sourceDir, "Vegetation-Populations/Vegetation-Populations_2.csv"))
+    popDF3 <- fread(paste0(sourceDir, "Vegetation-Populations/Vegetation-Populations_3.csv"))
+    popDF4 <- fread(paste0(sourceDir, "Vegetation-Populations/Vegetation-Populations_4.csv"))
+    popDF5 <- fread(paste0(sourceDir, "Vegetation-Populations/Vegetation-Populations_5.csv"))
+    popDF6 <- fread(paste0(sourceDir, "Vegetation-Populations/Vegetation-Populations_6.csv"))
+    popDF7 <- fread(paste0(sourceDir, "Vegetation-Populations/Vegetation-Populations_7.csv"))
+    popDF8 <- fread(paste0(sourceDir, "Vegetation-Populations/Vegetation-Populations_8.csv"))
+    popDF9 <- fread(paste0(sourceDir, "Vegetation-Populations/Vegetation-Populations_9.csv"))
+    popDF10 <- fread(paste0(sourceDir, "Vegetation-Populations/Vegetation-Populations_10.csv"))
+    popDF11 <- fread(paste0(sourceDir, "Vegetation-Populations/Vegetation-Populations_11.csv"))
+    popDF12 <- fread(paste0(sourceDir, "Vegetation-Populations/Vegetation-Populations_12.csv"))
+    popDF13 <- fread(paste0(sourceDir, "Vegetation-Populations/Vegetation-Populations_13.csv"))
+    popDF14 <- fread(paste0(sourceDir, "Vegetation-Populations/Vegetation-Populations_14.csv"))
+    popDF15 <- fread(paste0(sourceDir, "Vegetation-Populations/Vegetation-Populations_15.csv"))
+    popDF16 <- fread(paste0(sourceDir, "Vegetation-Populations/Vegetation-Populations_16.csv"))
+    popDF17 <- fread(paste0(sourceDir, "Vegetation-Populations/Vegetation-Populations_17.csv"))
+    
+    ### remove comments
+    popDF1 <- popDF1[-1,]
+    popDF2 <- popDF2[-1,]
+    popDF3 <- popDF3[-1,]
+    popDF4 <- popDF4[-1,]
+    popDF5 <- popDF5[-1,]
+    popDF6 <- popDF6[-1,]
+    popDF7 <- popDF7[-1,]
+    popDF8 <- popDF8[-1,]
+    popDF9 <- popDF9[-1,]
+    popDF10 <- popDF10[-1,]
+    popDF11 <- popDF11[-1,]
+    popDF12 <- popDF12[-1,]
+    popDF13 <- popDF13[-1,]
+    popDF14 <- popDF14[-1,]
+    popDF15 <- popDF15[-1,]
+    popDF16 <- popDF16[-1,]
+    popDF17 <- popDF17[-1,]
+
+    ### combine
+    popDF <- rbind(popDF1, 
+                   rbind(popDF2, 
+                         rbind(popDF3, 
+                               rbind(popDF4, 
+                                     rbind(popDF5, 
+                                           rbind(popDF6, 
+                                                 rbind(popDF7, 
+                                                       rbind(popDF8,
+                                                             rbind(popDF9, 
+                                                                   rbind(popDF10, 
+                                                                         rbind(popDF11, 
+                                                                               rbind(popDF12, 
+                                                                                     rbind(popDF13, 
+                                                                                           rbind(popDF14, 
+                                                                                                 rbind(popDF15,
+                                                                                                       rbind(popDF16, popDF17))))))))))))))))
     
     
+    ### delete individual files
+    rm(popDF1)
+    rm(popDF2)
+    rm(popDF3)
+    rm(popDF4)
+    rm(popDF5)
+    rm(popDF6)
+    rm(popDF7)
+    rm(popDF8)
+    rm(popDF9)
+    rm(popDF10)
+    rm(popDF11)
+    rm(popDF12)
+    rm(popDF13)
+    rm(popDF14)
+    rm(popDF15)
+    rm(popDF16)
+    rm(popDF17)
+ 
+    ### column names
+    colnames(popDF) <- c("VegetationPopulationID", "SiteID", "SiteVisitID", "CustodianSiteID",
+                         "CustodianSurveyName","VisitDate", "Lon", "Lat", "CoordinateReliability",
+                         "PlotSamplingUnit","TaxonName", "TaxonNameComments",
+                         "TaxonIdentityMethod","AbundanceValue", "AbundanceRange",
+                         "AbundanceUnits", "AbundanceComment", "SamplingUnitSize", "SamplingUnitSizeUnits", "CanopyDiameterNorthSouthValue",
+                         "CanopyDiameterNorthSouthUnits", "CanopyDiameterEastWestValue","CanopyDiameterEastWestUnits", 
+                         "HeightValue", "HeightRange", "HeightUnits", "HeightCategory", "HeightComment",
+                         "AverageHeightValue", "AverageHeightUnits", "LifeStageComment", "PostFireRegenerationStrategyCategory",
+                         "DominatesComment", "DominanceRankComment", "MethodName", "VegetationPopulationComment")
+    
+    ### delete empty columns
+    popDF$CoordinateReliability <- NULL
+    popDF$TaxonNameComments <- NULL
+    popDF$TaxonIdentityMethod <- NULL
+    popDF$AbundanceComment <- NULL
+    popDF$MethodName <- NULL
+    popDF$VegetationPopulationComment <- NULL
+    popDF$HeightCategory <- NULL
+    popDF$HeightComment <- NULL
     
     
+    ### convert unit
+    popDF$VisitDate <- as.Date(as.character(popDF$VisitDate), format = "%d-%m-%Y")
+    
+    popDF$Lon <- as.numeric(popDF$Lon)
+    popDF$Lat <- as.numeric(popDF$Lat)
+    
+    popDF$AbundanceValue <- as.numeric(popDF$AbundanceValue)
+    
+    ## convert all into per hectare
+    popDF$SamplingUnitSize <- as.numeric(popDF$SamplingUnitSize)
+    popDF$SamplingUnitSize_ha <- ifelse(popDF$SamplingUnitSizeUnits == "square metres", 
+                                        popDF$SamplingUnitSize / 10000.0,
+                                        popDF$SamplingUnitSize)
+    
+    ## cm
+    popDF$CanopyDiameterEastWestValue <- as.numeric(popDF$CanopyDiameterEastWestValue)
+    popDF$CanopyDiameterNorthSouthValue <- as.numeric(popDF$CanopyDiameterNorthSouthValue)
+    popDF$CanopyDiameterEastWestUnits <- NULL
+    popDF$CanopyDiameterNorthSouthUnits <- NULL
+    
+    # height
+    popDF$HeightValue <- as.numeric(popDF$HeightValue)
+    popDF$HeightValue_m <- ifelse(popDF$HeightUnits == "centimetres", 
+                                        popDF$HeightValue / 100.0,
+                                        popDF$HeightValue)
+    
+    popDF$AverageHeightValue <- as.numeric(popDF$AverageHeightValue)
+    popDF$AverageHeightUnits <- NULL
+
+    ### now all data are cleaned and reprocessed, we can investigate.
+    
+    
+        
     # end
 
 }
