@@ -16,3 +16,18 @@ process_CSIRO_North_Queesland_rainforest_permanent_plots(sourceDir="data/CSIRO_P
 
 
 
+##########################################################################
+#### AEKOS subset Australian vegetation frequency and cover 2017
+process_AEKOS_Subset_Australian_Plant_Frequency_and_Cover_2017(sourceDir="data/AEKOS_Subset_Australian_Plant_Frequency_and_Cover_2017/data/",
+                                                               outDir="output/AEKOS_Subset_Australian_Plant_Frequency_and_Cover_2017/")
+
+
+
+
+
+
+
+
+
+
+### end.
