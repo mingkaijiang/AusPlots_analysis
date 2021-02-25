@@ -448,6 +448,57 @@ process_AEKOS_Subset_Australian_Plant_Frequency_and_Cover_2017 <- function(sourc
     popDF$HeightCategory <- NULL
     popDF$HeightComment <- NULL
     
+    ### add missing information
+    popDF$SamplingUnitSizeUnits <- ifelse(popDF$SamplingUnitSizeUnits%in%c("square metres", "hectares"), 
+                                          popDF$SamplingUnitSizeUnits, "unknown")
+    
+    
+    
+    popDF$HeightUnits <- ifelse(popDF$HeightUnits%in%c("centimetres", "metres"),
+                                popDF$HeightUnits, "unknown")
+    
+    
+    popDF$LifeStageComment <- ifelse(popDF$LifeStageComment%in%c("Adult", "Juvenile", 
+                                                                 "Alive", "Dead"),
+                                     popDF$LifeStageComment, "Unknown")
+    
+    popDF$PostFireRegenerationStrategyCategory <- ifelse(popDF$PostFireRegenerationStrategyCategory%in%c("Resprouter", "Seeder"),
+                                                         popDF$PostFireRegenerationStrategyCategory, "Unknown")
+    
+    
+    popDF$DominatesComment <- ifelse(popDF$DominatesComment=="Midstorey Vegetation",
+                                     "MidstoreyVegetation", 
+                                     ifelse(popDF$DominatesComment=="Groundstorey Vegetation", 
+                                            "GroundstoreyVegetation", 
+                                            ifelse(popDF$DominatesComment%in%c("Overstorey Vegetation",
+                                                                               "overstorey: species that dominate the tallest stratum with a canopy cover OF greater than or equal to 5%"),
+                                                   "OverstoreyVegetation", 
+                                                   ifelse(popDF$DominatesComment=="understorey: species that occur in strata below the overstorey",
+                                                          "UnderstoreyVegetation",
+                                                          ifelse(popDF$DominatesComment == "emergent: species that emerges above the overstorey and occupies a stratum that has a canopy cover less than 5%",
+                                                                 "EmergentVegetation", "Unknown")))))
+    
+    popDF$DominanceRankComment <- ifelse(popDF$DominanceRankComment=="Most dominant taxon",
+                                         "MostDominantTaxon", 
+                                         ifelse(popDF$DominanceRankComment%in%c("Second most dominant taxon",
+                                                                                "2nd most dominant taxon"),
+                                                "SecondMostDominantTaxon",
+                                                ifelse(popDF$DominanceRankComment%in%c("Third most dominant taxon",
+                                                                                       "3rd most dominant taxon"),
+                                                       "ThirdMostDominantTaxon",
+                                                       ifelse(popDF$DominanceRankComment=="1st major alien taxon",
+                                                              "FirstMajorAlienTaxon",
+                                                              ifelse(popDF$DominanceRankComment=="2nd major alien taxon",
+                                                                     "SecondMajorAlienTaxon",
+                                                                     ifelse(popDF$DominanceRankComment=="3rd major alien taxon",
+                                                                            "ThirdMajorAlienTaxon",
+                                                                            ifelse(popDF$DominanceRankComment=="4th major alien taxon",
+                                                                                   "FourthMajorAlienTaxon", 
+                                                                                   ifelse(popDF$DominanceRankComment=="5th major alien taxon",
+                                                                                          "FifthMajorAlienTaxon", 
+                                                                                          ifelse(popDF$DominanceRankComment=="Dominant species in emergent stratum",
+                                                                                                 "DominantSpeciesEmergentStratum", "unknown")))))))))
+    
     
     ### convert unit
     popDF$VisitDate <- as.Date(as.character(popDF$VisitDate), format = "%d-%m-%Y")
@@ -477,8 +528,122 @@ process_AEKOS_Subset_Australian_Plant_Frequency_and_Cover_2017 <- function(sourc
     
     popDF$AverageHeightValue <- as.numeric(popDF$AverageHeightValue)
     popDF$AverageHeightUnits <- NULL
+    
+    ### add missing information
 
     ### now all data are cleaned and reprocessed, we can investigate.
+    
+    ### plot PDF of abundance (percent) and height (m), split into different groups
+    subDF1 <- popDF[popDF$AbundanceUnits == "percent",]
+    subDF2 <- popDF[popDF$AbundanceUnits == "individuals",]
+    
+
+    p1 <- ggplot(subDF1[subDF1$DominanceRankComment!="unknown",],
+                 aes(AbundanceValue, col = DominanceRankComment)) +
+        geom_density()+
+        theme_linedraw() +
+        theme(panel.grid.minor=element_blank(),
+              axis.title.x = element_text(size=12), 
+              axis.text.x = element_text(size=12),
+              axis.text.y=element_text(size=12),
+              axis.title.y=element_text(size=12),
+              legend.text=element_text(size=10),
+              legend.title=element_text(size=12),
+              panel.grid.major=element_blank(),
+              legend.position="right",
+              legend.text.align=0)+
+        xlab("Abundance (%)")
+    
+    
+    p2 <- ggplot() +
+        geom_density(subDF2[subDF2$LifeStageComment!="Unkown",],
+                     mapping = aes(AbundanceValue, col = LifeStageComment))+
+        theme_linedraw() +
+        theme(panel.grid.minor=element_blank(),
+              axis.title.x = element_text(size=12), 
+              axis.text.x = element_text(size=12),
+              axis.text.y=element_text(size=12),
+              axis.title.y=element_text(size=12),
+              legend.text=element_text(size=10),
+              legend.title=element_text(size=12),
+              panel.grid.major=element_blank(),
+              legend.position="right",
+              legend.text.align=0)+
+        xlab("Abundance (individual)")
+    
+    
+    ### make summary statistics - split by abundance
+    #sumDF1 <- summaryBy(AbundanceValue+CanopyDiameterNorthSouthValue+CanopyDiameterEastWestValue+HeightValue_m+AverageHeightValue~DominatesComment,
+    #                    data=subDF1, FUN=c(mean, sd), na.rm=T, keep.names=T)
+    #
+    #
+    #sumDF2 <- summaryBy(AbundanceValue+CanopyDiameterNorthSouthValue+CanopyDiameterEastWestValue+HeightValue_m+AverageHeightValue~DominanceRankComment,
+    #                    data=subDF1, FUN=c(mean, sd), na.rm=T, keep.names=T)
+    #
+    #
+    #sumDF3 <- summaryBy(AbundanceValue+CanopyDiameterNorthSouthValue+CanopyDiameterEastWestValue+HeightValue_m+AverageHeightValue~LifeStageComment,
+    #                    data=subDF2, FUN=c(mean, sd), na.rm=T, keep.names=T)
+    #
+    
+    p1 <- ggplot() +
+        geom_boxplot(subDF1, mapping = aes(DominatesComment, AbundanceValue, col = DominatesComment))+
+        theme_linedraw() +
+        theme(panel.grid.minor=element_blank(),
+              axis.title.x = element_text(size=12), 
+              axis.text.x = element_text(size=12),
+              axis.text.y=element_text(size=12),
+              axis.title.y=element_text(size=12),
+              legend.text=element_text(size=10),
+              legend.title=element_text(size=12),
+              panel.grid.major=element_blank(),
+              legend.position="bottom",
+              legend.text.align=0)+
+        ylab("Abundance (%)")+
+        xlab("Dominance")
+    
+    
+    p2 <- ggplot() +
+        geom_boxplot(subDF1, mapping = aes(DominanceRankComment, AbundanceValue, col = DominanceRankComment))+
+        theme_linedraw() +
+        theme(panel.grid.minor=element_blank(),
+              axis.title.x = element_text(size=12), 
+              axis.text.x = element_text(size=12),
+              axis.text.y=element_text(size=12),
+              axis.title.y=element_text(size=12),
+              legend.text=element_text(size=10),
+              legend.title=element_text(size=12),
+              panel.grid.major=element_blank(),
+              legend.position="bottom",
+              legend.text.align=0)+
+        ylab("Abundance (%)")+
+        xlab("Dominance")
+    
+    
+    p3 <- ggplot() +
+        geom_boxplot(subDF2, mapping = aes(LifeStageComment, AbundanceValue, col = LifeStageComment))+
+        theme_linedraw() +
+        theme(panel.grid.minor=element_blank(),
+              axis.title.x = element_text(size=12), 
+              axis.text.x = element_text(size=12),
+              axis.text.y=element_text(size=12),
+              axis.title.y=element_text(size=12),
+              legend.text=element_text(size=10),
+              legend.title=element_text(size=12),
+              panel.grid.major=element_blank(),
+              legend.position="bottom",
+              legend.text.align=0)+
+        ylab("Abundance (individual)")+
+        xlab("Life cycle stage")
+    
+    #plot(p3)
+
+    
+    ### This dataset is messy.
+    ### We will need to focus on tracking a particular patch over time.
+    ### But possible data quality issues include:
+    ### inconsistent number of sample size (due to incomplete assessment of plant demography within each patch);
+    ### incomplete match of data variables (a lot missing data, for different variables).
+    ### We will need to figure out a way to process the data.
     
     
         
