@@ -10,6 +10,12 @@ source("prepare.R")
 
 
 ##########################################################################
+### Ausplot site projected to Whittaker diagram
+
+Ausplot_on_Whittaker_diagram()
+
+
+##########################################################################
 #### CSIRO Permanent rainforest plot North Queensland 
 process_CSIRO_North_Queesland_rainforest_permanent_plots(sourceDir="data/CSIRO_Permanent_rainforest_plot_North_Queensland/data/",
                                                          outDir="output/CSIRO_Permanent_rainforest_plot_North_Queensland/")

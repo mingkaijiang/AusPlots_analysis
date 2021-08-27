@@ -3,6 +3,8 @@ if(!dir.exists("output")) {
     dir.create("output", showWarnings = FALSE)
 }
 
+### plot biomes
+remotes::install_github("valentinitnelav/plotbiomes")
 
 #### Install packages
 if(!require(pacman))install.packages("pacman")
@@ -20,7 +22,10 @@ pacman::p_load(dplyr,
                ggthemes,
                RColorBrewer,
                gganimate,
-               gifski)    
+               gifski,
+               AWAPer,
+               ausplotsR,
+               plotbiomes)    
 
 
 #### Sourcing all R files in the modules subdirectory
