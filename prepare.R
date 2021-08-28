@@ -28,7 +28,8 @@ pacman::p_load(dplyr,
                ausplotsR,
                plotbiomes,
                awaptools,
-               RSAGA)    
+               RSAGA,
+               cloudstoR)    
 
 
 #### Sourcing all R files in the modules subdirectory
