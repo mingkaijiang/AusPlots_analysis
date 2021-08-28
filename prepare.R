@@ -23,7 +23,6 @@ pacman::p_load(dplyr,
                RColorBrewer,
                gganimate,
                gifski,
-               AWAPer,
                ausplotsR,
                plotbiomes)    
 
