@@ -48,3 +48,8 @@ vignettes/*.pdf
 *.xml
 *.txt
 *.gif
+*.md
+*.rds
+*.zip
+*.yml
+*.bib

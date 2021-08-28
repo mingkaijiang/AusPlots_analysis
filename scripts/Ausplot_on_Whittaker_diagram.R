@@ -8,13 +8,22 @@ Ausplot_on_Whittaker_diagram <- function () {
     ### 5. Project Australia MAT and MAP point onto Whittaker diagram
     ### 6. Project Ausplot MAT and MAP point onto Whittaker diagram
     ### 7. Repeat for AusTraits - same as Falster et al. 2021.
-    ### 8. Check spatial coverage gaps
-    
-    
-    
+    ### 8. Add ozflux sites
+    ### 9. Add AEKOS sites
+    ### 10. Add other network sites
+    ### 11. Check spatial coverage gaps
+
+    my.ausplots.data <- try(get_ausplots(bounding_box = c(110, 155, -50, -10)))
     
     
     #### plotting script
+    ## AusPlots
+    pdf(paste0("output/AusPlots.pdf"), width=10, height=6)
+    map_ausplots(my.ausplots.data)
+    dev.off()
+    
+    
+    ## Whittaker global
     pdf(paste0("output/whittaker_diagram.pdf"), width=10, height=6)
     whittaker_base_plot(color_palette = NULL)+
         theme(legend.position = c(0.15, 0.75),
