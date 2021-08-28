@@ -15,7 +15,9 @@ Ausplot_on_Whittaker_diagram <- function () {
 
     my.ausplots.data <- try(get_ausplots(bounding_box = c(110, 155, -50, -10)))
     
+    ausplot.sites <- my.ausplots.data$site.info
     
+
     #### plotting script
     ## AusPlots
     pdf(paste0("output/AusPlots.pdf"), width=10, height=6)
