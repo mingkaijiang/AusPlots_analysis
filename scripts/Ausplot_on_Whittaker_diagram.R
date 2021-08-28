@@ -1,8 +1,8 @@
-Ausplot_on_Whittaker_diagram <- function () {
+Ausplot_on_Whittaker_diagram <- function (awap) {
     
     ### Steps:
-    ### 1. Get all Ausplot coordinates,
-    ### 2. Calculate AWAP MAT and MAP data across Australia
+    ### 1. Pass in AWAP MAT and MAP data across Australia
+    ### 2. Get all Ausplot coordinates,
     ### 3. Extract site-specific AWAP MAT and MAP data
     ### 4. Make Whittaker diagram
     ### 5. Project Australia MAT and MAP point onto Whittaker diagram

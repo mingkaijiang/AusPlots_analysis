@@ -6,13 +6,21 @@
 
 ##########################################################################
 #### Prepare basic set-up
+### clear wk space
+rm(list=ls(all=TRUE))
+
+### prepare
 source("prepare.R")
+
+##########################################################################
+### prepare AWAP data
+awapDF <- prepare_AWAP_climate()
 
 
 ##########################################################################
 ### Ausplot site projected to Whittaker diagram
 
-Ausplot_on_Whittaker_diagram()
+Ausplot_on_Whittaker_diagram(awap = awapDF)
 
 
 ##########################################################################

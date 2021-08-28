@@ -6,6 +6,8 @@ if(!dir.exists("output")) {
 ### plot biomes
 remotes::install_github("valentinitnelav/plotbiomes")
 
+remotes::install_github("swish-climate-impact-assessment/awaptools")
+
 #### Install packages
 if(!require(pacman))install.packages("pacman")
 pacman::p_load(dplyr, 
@@ -24,7 +26,9 @@ pacman::p_load(dplyr,
                gganimate,
                gifski,
                ausplotsR,
-               plotbiomes)    
+               plotbiomes,
+               awaptools,
+               RSAGA)    
 
 
 #### Sourcing all R files in the modules subdirectory
