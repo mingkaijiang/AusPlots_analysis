@@ -27,11 +27,16 @@ Ausplot_on_Whittaker_diagram <- function (awap) {
     
     ## Whittaker global
     pdf(paste0("output/whittaker_diagram.pdf"), width=10, height=6)
-    whittaker_base_plot(color_palette = NULL)+
+    p1 <- whittaker_base_plot(color_palette = NULL)+
         theme(legend.position = c(0.15, 0.75),
               panel.background = element_blank(),
               panel.grid.major = element_line(gray(0.7)),
               panel.border = element_rect(fill = NA))
+    
+    #p2 <- p1 +         
+    #    geom_hex(data=awapDF, mapping=aes(x=Tmn, y=MAP), bins=30)
+
+    plot(p2)
     dev.off()
     
 }

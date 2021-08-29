@@ -53,3 +53,11 @@ vignettes/*.pdf
 *.zip
 *.yml
 *.bib
+*.ovr
+*.lyr
+*.nit
+*.dat
+*.dir
+*.adf
+*.png
+
