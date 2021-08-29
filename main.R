@@ -16,7 +16,8 @@ source("prepare.R")
 ### prepare AWAP data
 awapDF <- prepare_AWAP_climate()
 
-prepare_NVIS_Australia_vegetation_classification()
+prepare_NVIS_Australia_vegetation_classification(awap = awapDF,
+                                                 destDir="output")
 
 prepare_forest_of_Australia_2013()
 
