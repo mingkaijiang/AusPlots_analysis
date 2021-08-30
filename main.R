@@ -32,10 +32,11 @@ if (first.cloudstor == "T") {
 ### prepare AWAP data
 awapDF <- prepare_AWAP_climate()
 
-
+##########################################################################
 ### Ausplot site projected to Whittaker diagram
 Ausplot_on_Whittaker_diagram(awap = awapDF)
 
+##########################################################################
 ### AusTrait dataset
 AustraitDF <- download_AusTrait_from_CloudStor(sourceDir="DAVE_data/Raw_data",
                                                destDir="data/Raw_data",
@@ -43,7 +44,17 @@ AustraitDF <- download_AusTrait_from_CloudStor(sourceDir="DAVE_data/Raw_data",
                                                to.plot=T,
                                                remove.after.processing=T)
 
+##########################################################################
+#### CSIRO Permanent rainforest plot North Queensland 
+process_CSIRO_North_Queesland_rainforest_permanent_plots(sourceDir="DAVE_data/Raw_data",
+                                                         destDir="data/Raw_data",
+                                                         awap=awapDF,
+                                                         to.plot=T,
+                                                         remove.after.processing=T)
 
+
+
+##########################################################################
 ### merge all known datasets and make basic plots
 All_data_merge_and_plot(awap=awapDF)
 
@@ -53,14 +64,6 @@ All_data_merge_and_plot(awap=awapDF)
 
 ##########################################################################
 prepare_forest_of_Australia_2013()
-
-
-
-
-##########################################################################
-#### CSIRO Permanent rainforest plot North Queensland 
-process_CSIRO_North_Queesland_rainforest_permanent_plots(sourceDir="data/CSIRO_Permanent_rainforest_plot_North_Queensland/data/",
-                                                         outDir="output/CSIRO_Permanent_rainforest_plot_North_Queensland/")
 
 
 
