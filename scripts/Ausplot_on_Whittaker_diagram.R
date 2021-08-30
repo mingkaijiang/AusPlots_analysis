@@ -38,6 +38,16 @@ Ausplot_on_Whittaker_diagram <- function (awap) {
     ausplot.sites$MAP <- extract(map.raster, ausplot.lonlat)
     
     ##########################################################################
+    ### read in AusTrait data
+    download_AusTrait_from_CloudStor(sourceDir="DAVE_data/Raw_data",
+                                     destDir="data/Raw_data",
+                                     remove.after.processing=T)
+    
+    
+    
+    
+    
+    ##########################################################################
     ### plotting script
     
     ### australia polygon
