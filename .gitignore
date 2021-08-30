@@ -60,4 +60,5 @@ vignettes/*.pdf
 *.dir
 *.adf
 *.png
+*.rds
 

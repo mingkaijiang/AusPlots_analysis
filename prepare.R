@@ -1,7 +1,21 @@
 #### Create output folder
+if(!dir.exists("data")) {
+    dir.create("data", showWarnings = FALSE)
+}
+
+
 if(!dir.exists("output")) {
     dir.create("output", showWarnings = FALSE)
 }
+
+sub.folder <- c("Raw_data", "Temporary", "Processed")
+
+for (i in sub.folder) {
+    if(!dir.exists(paste0("data/", i))) {
+        dir.create(paste0("data/", i), showWarnings = FALSE)
+    }
+}
+
 
 ### plot biomes
 remotes::install_github("valentinitnelav/plotbiomes")

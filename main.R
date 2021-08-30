@@ -12,6 +12,22 @@ rm(list=ls(all=TRUE))
 ### prepare
 source("prepare.R")
 
+### set cloudstor authentication for the first time
+### First time user needs to use web interface for set-up
+### 1. Log on to Cloudstor,
+### 2. Go to Settings
+### 3. Set-up App passwords
+### 4. Copy and paste the App user name and password
+### 5. Run the following line, with first.cloudstor set as T
+### 6. Enter user name, and password when prompted
+### 7. Now you can download and upload data to Cloudstor
+first.cloudstor <- "F"
+if (first.cloudstor == "T") {
+    cloud_auth()
+} else {
+    print("no need to run cloud_auth")
+}
+
 ##########################################################################
 ### prepare AWAP data
 awapDF <- prepare_AWAP_climate()

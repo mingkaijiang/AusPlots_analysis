@@ -12,10 +12,14 @@ prepare_AWAP_climate <- function () {
     #calculate_AWAP_MAT_for_Australia(sourceDir = "/Volumes/TOSHIBAEXT/AWAP/", 
     #                                 destDir = "output")
 
-    
     ### read in MAT and MAP
-    mapDF <- readRDS("output/Australia_30-yr_MAP.rds")
-    matDF <- readRDS("output/Australia_30-yr_MAT.rds")
+    mapDF <- cloud_get(path = "DAVE_data/Processed/Australia_30-yr_MAP.rds",
+                       dest = "data/Processed/Australia_30-yr_MAP.rds",
+                       open_file = T)
+    
+    matDF <- cloud_get(path = "DAVE_data/Processed/Australia_30-yr_MAT.rds",
+                       dest = "data/Processed/Australia_30-yr_MAT.rds",
+                       open_file = T)
     
     
     outDF <- merge(mapDF, matDF, by=c("latID", "lonID", "lat", "lon"))
