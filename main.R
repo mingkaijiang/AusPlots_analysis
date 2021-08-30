@@ -36,6 +36,16 @@ awapDF <- prepare_AWAP_climate()
 ### Ausplot site projected to Whittaker diagram
 Ausplot_on_Whittaker_diagram(awap = awapDF)
 
+### AusTrait dataset
+AustraitDF <- download_AusTrait_from_CloudStor(sourceDir="DAVE_data/Raw_data",
+                                               destDir="data/Raw_data",
+                                               awap=awapDF,
+                                               to.plot=T,
+                                               remove.after.processing=T)
+
+
+### merge all known datasets and make basic plots
+All_data_merge_and_plot(awap=awapDF)
 
 ##########################################################################
 #prepare_NVIS_Australia_vegetation_classification(awap = awapDF,

@@ -1,18 +1,5 @@
 Ausplot_on_Whittaker_diagram <- function (awap) {
     
-    ### Steps:
-    ### 1. Pass in AWAP MAT and MAP data across Australia
-    ### 2. Get all Ausplot coordinates,
-    ### 3. Extract site-specific AWAP MAT and MAP data
-    ### 4. Make Whittaker diagram
-    ### 5. Project Australia MAT and MAP point onto Whittaker diagram
-    ### 6. Project Ausplot MAT and MAP point onto Whittaker diagram
-    ### 7. Repeat for AusTraits - same as Falster et al. 2021.
-    ### 8. Add ozflux sites
-    ### 9. Add AEKOS sites
-    ### 10. Add other network sites
-    ### 11. Check spatial coverage gaps
-
     ##########################################################################
     ### read in Ausplot data
     my.ausplots.data <- try(get_ausplots(bounding_box = c(110, 155, -50, -10)))
@@ -37,21 +24,9 @@ Ausplot_on_Whittaker_diagram <- function (awap) {
     ausplot.sites$MAT <- extract(mat.raster, ausplot.lonlat)
     ausplot.sites$MAP <- extract(map.raster, ausplot.lonlat)
     
-    ##########################################################################
-    ### read in AusTrait data
-    download_AusTrait_from_CloudStor(sourceDir="DAVE_data/Raw_data",
-                                     destDir="data/Raw_data",
-                                     remove.after.processing=T)
     
-    
-    
-    
-    
-    ##########################################################################
-    ### plotting script
-    
+    ### plotting script for Ausplot only
     ### australia polygon
-    require(rnaturalearth)
     aus.poly <- ne_countries(scale = "medium", country = "Australia", returnclass = "sf")
     
     
@@ -60,7 +35,6 @@ Ausplot_on_Whittaker_diagram <- function (awap) {
     map_ausplots(my.ausplots.data)
     dev.off()
     
-
     pdf(paste0("output/AusPlots_spatial_coverage_visit.pdf"), width=10, height=6)
     p1 <- ggplot(data=aus.poly)+
         geom_point(ausplot.sites, 
@@ -100,8 +74,8 @@ Ausplot_on_Whittaker_diagram <- function (awap) {
                    mapping=aes(x=MAT, y=MAP/10, col=visit_repeat),
                    pch=19)+
         scale_color_manual(name="Visit",
-                          values=c("1" = "yellow", "2" = "black"),
-                          labels=c("1" = "Single", "2" = "Multiple"))+
+                           values=c("1" = "yellow", "2" = "black"),
+                           labels=c("1" = "Single", "2" = "Multiple"))+
         #scale_size_manual(name="Visit",
         #                  values=c("1" = 1, "2" = 3),
         #                  labels=c("1" = "single", "2" = "multiple"))+
@@ -109,13 +83,9 @@ Ausplot_on_Whittaker_diagram <- function (awap) {
               panel.background = element_blank(),
               panel.grid.major = element_line(gray(0.7)),
               panel.border = element_rect(fill = NA))
-        
+    
     plot(p2)
     dev.off()
     
-    
-    
-    
-    
-    
+  
 }

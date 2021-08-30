@@ -44,7 +44,8 @@ pacman::p_load(dplyr,
                awaptools,
                RSAGA,
                cloudstoR,
-               SpaDES)    
+               SpaDES,
+               rnaturalearth)    
 
 
 #### Sourcing all R files in the modules subdirectory
