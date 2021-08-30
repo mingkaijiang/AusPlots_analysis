@@ -4,6 +4,12 @@ prepare_NVIS_Australia_vegetation_classification <- function(awap,
     ### data source:
     ### https://www.environment.gov.au/fed/catalog/search/resource/downloadData.page?uuid=%7B991C36C0-3FEA-4469-8C30-BB56CC2C7772%7D
     
+    ### get the data from cloudstor
+    cloud_get(path = "DAVE_data/Raw_data/Australia_30-yr_MAP.rds",
+              dest = "data/Raw_data/Australia_30-yr_MAP.rds",
+              open_file = F)
+    
+    
     ### read in the data - raster format
     file.path <- paste0("data/NVIS_V6/GRID_NVIS6_0_AUST_EXT_MVG/aus6_0e_mvg/")
     

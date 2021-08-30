@@ -32,16 +32,19 @@ if (first.cloudstor == "T") {
 ### prepare AWAP data
 awapDF <- prepare_AWAP_climate()
 
-prepare_NVIS_Australia_vegetation_classification(awap = awapDF,
-                                                 destDir="output")
 
-prepare_forest_of_Australia_2013()
+### Ausplot site projected to Whittaker diagram
+Ausplot_on_Whittaker_diagram(awap = awapDF)
 
 
 ##########################################################################
-### Ausplot site projected to Whittaker diagram
+#prepare_NVIS_Australia_vegetation_classification(awap = awapDF,
+#                                                 destDir="output")
 
-Ausplot_on_Whittaker_diagram(awap = awapDF)
+##########################################################################
+prepare_forest_of_Australia_2013()
+
+
 
 
 ##########################################################################
