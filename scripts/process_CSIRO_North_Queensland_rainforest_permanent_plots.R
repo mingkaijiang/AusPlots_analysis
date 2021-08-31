@@ -384,9 +384,6 @@ process_CSIRO_North_Queesland_rainforest_permanent_plots <- function(sourceDir,
     
     save_plot(paste0("output/CSIRO_QLD_rainforest_mortality_due_to_drought.pdf"),
               combined_plot, base_width=6, base_height = 8)
-
-    
-
     
     
     
@@ -398,6 +395,7 @@ process_CSIRO_North_Queesland_rainforest_permanent_plots <- function(sourceDir,
         
     }
     
+    return(metaDF)
     
     # end
 }

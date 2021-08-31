@@ -1,4 +1,8 @@
-All_data_merge_and_plot <- function (awap) {
+All_data_merge_and_plot <- function (sourceDir, 
+                                     destDir,
+                                     awap,
+                                     austrait.site,
+                                     QLD.rainforest.site) {
     
     ### Steps:
     ### 1. Pass in AWAP MAT and MAP data across Australia
@@ -38,13 +42,6 @@ All_data_merge_and_plot <- function (awap) {
     ausplot.sites$MAP <- extract(map.raster, ausplot.lonlat)
 
     
-    austrait.site <- download_AusTrait_from_CloudStor(sourceDir="DAVE_data/Raw_data",
-                                                      destDir="data/Raw_data",
-                                                      awap=awap,
-                                                      to.plot=F,
-                                                      remove.after.processing=T)
-    
-    
     ##########################################################################
     ### Merge all data of different source together
     ## prepare ausplot
@@ -59,9 +56,17 @@ All_data_merge_and_plot <- function (awap) {
     tmpDF2$Dataset <- "AusTrait"
     names(tmpDF2)[names(tmpDF2)=="dataset_id"] <- "DataID"
     
+    ## prepare North Queensland rainforest plot
+    tmpDF3 <- QLD.rainforest.site[,c("epNumber", "Longitude", "Latitude",
+                               "MAT", "MAP")]
+    tmpDF3$Dataset <- "QLD Rainforest"
+    names(tmpDF3)[names(tmpDF3)=="epNumber"] <- "DataID"
+    names(tmpDF3)[names(tmpDF3)=="Longitude"] <- "longitude"
+    names(tmpDF3)[names(tmpDF3)=="Latitude"] <- "latitude"
     
+    ### merge
     allDF <- rbind(tmpDF1, tmpDF2)
-    
+    allDF <- rbind(allDF, tmpDF3)
     
     ### plotting
     ### australia polygon
@@ -87,9 +92,11 @@ All_data_merge_and_plot <- function (awap) {
               legend.position="bottom",
               legend.box = 'vertical',
               legend.box.just = 'left')+
-        scale_fill_manual(name="Dataset",
-                          values=c("AusPlot" = "red3", "AusTrait" = "yellow"),
-                          labels=c("AusPlot" = "AusPlot", "AusTrait" = "AusTrait"))+
+        #scale_fill_manual(name="Dataset",
+        #                  values=c("AusPlot" = "red3", 
+        #                           "AusTrait" = "yellow"),
+        #                  labels=c("AusPlot" = "AusPlot", 
+        #                           "AusTrait" = "AusTrait"))+
         ylim(-45, -10)+
         xlim(100,160)
     
@@ -105,9 +112,11 @@ All_data_merge_and_plot <- function (awap) {
         geom_point(allDF, 
                    mapping=aes(x=MAT, y=MAP/10, col=Dataset),
                    pch=19)+
-        scale_color_manual(name="Visit",
-                           values=c("AusPlot" = "red3", "AusTrait" = "yellow"),
-                           labels=c("AusPlot" = "AusPlot", "AusTrait" = "AusTrait"))+
+        #scale_color_manual(name="Visit",
+        #                   values=c("AusPlot" = "red3", 
+        #                            "AusTrait" = "yellow"),
+        #                   labels=c("AusPlot" = "AusPlot", 
+        #                            "AusTrait" = "AusTrait"))+
         theme(legend.position = c(0.15, 0.65),
               panel.background = element_blank(),
               panel.grid.major = element_line(gray(0.7)),

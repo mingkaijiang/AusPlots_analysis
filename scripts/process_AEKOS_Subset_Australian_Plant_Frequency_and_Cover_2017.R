@@ -1,17 +1,23 @@
 process_AEKOS_Subset_Australian_Plant_Frequency_and_Cover_2017 <- function(sourceDir,
-                                                                           outDir) {
+                                                                           destDir,
+                                                                           awap,
+                                                                           to.plot=T,
+                                                                           remove.after.processing=T) {
     
-    ### prepare outdir
-    if(!dir.exists(outDir)) {
-        dir.create(outDir, showWarnings = FALSE)
-    }
+    ### download the zip file first
+    cloud_get(path = paste0(sourceDir, "/AEKOS_Subset_Australian_Plant_Frequency_and_Cover_2017.zip"),
+              dest = paste0(destDir, "/AEKOS_Subset_Australian_Plant_Frequency_and_Cover_2017.zip"),
+              open_file = F)
+    
+    ### unzip the file
+    system(paste0("unzip ", destDir, "/AEKOS_Subset_Australian_Plant_Frequency_and_Cover_2017.zip -d ", destDir))
     
     
     ### obtain site information
-    siteDF1 <- fread(paste0(sourceDir, "site-details/site-details_1.csv"))
+    siteDF1 <- fread(paste0(destDir, "/AEKOS_Subset_Australian_Plant_Frequency_and_Cover_2017/data/site-details/site-details_1.csv"))
     siteDF1 <- siteDF1[-1,]
     
-    siteDF2 <- fread(paste0(sourceDir, "site-details/site-details_2.csv"))
+    siteDF2 <- fread(paste0(destDir, "/AEKOS_Subset_Australian_Plant_Frequency_and_Cover_2017/data/site-details/site-details_2.csv"))
     siteDF2 <- siteDF2[-1,]
     
     siteDF <- rbind(siteDF1, siteDF2)
@@ -31,42 +37,88 @@ process_AEKOS_Subset_Australian_Plant_Frequency_and_Cover_2017 <- function(sourc
     siteDF$Lat <- as.numeric(siteDF$Lat)
     
     ### create visit frequency of each coordinate
-    freqDF <- count(siteDF, c("Lon", "Lat"))
+    #freqDF <- count(siteDF, c("Lon", "Lat"))
+    freqDF <- count(siteDF, "SiteID")
     
-    ### plot map
-    p1 <- ggplot() + 
-        geom_point(data=freqDF, aes(y=Lat, x=Lon, col=freq)) +
-        coord_quickmap(xlim=range(freqDF$Lon), ylim=range(freqDF$Lat))+
-        borders("world", col="grey", lwd=0.2) +
-        theme(panel.grid.minor=element_blank(),
-              axis.text.x=element_blank(),
-              axis.title.x=element_blank(),
-              axis.text.y=element_blank(),
-              axis.title.y=element_blank(),
-              legend.text=element_text(size=10),
-              legend.title=element_text(size=12),
-              panel.grid.major=element_blank(),
-              legend.box = 'none',
-              legend.box.just = 'vertical',
-              legend.position = "none",
-              legend.background = element_rect(fill="white",
-                                               size=0.5, linetype="solid", 
-                                               colour ="white"),
-              plot.title = element_text(size=14, face="bold.italic", 
-                                        hjust = 0.5))+
-        ggtitle("AEKOS site")
+    tmpDF <- siteDF[,c("SiteID", "Lon", "Lat")]
+    tmpDF <- tmpDF[!duplicated(tmpDF$SiteID),]
+    freqDF <- merge(freqDF, tmpDF, by="SiteID")
     
-    pdf(paste0(outDir, "AEKOS_site.pdf"))
-    plot(p1)
-    dev.off()
+    
+    ### create a new outDF
+    outDF <- freqDF
+
+    ### overlap with awap data to get MAT and MAP
+    coordinates(freqDF) = ~Lon+Lat
+    
+    ### get awap raster
+    matDF <- awap[,c("lon", "lat", "Tmn")]
+    mapDF <- awap[,c("lon", "lat", "MAP")]
+    
+    mat.raster <- rasterFromXYZ(matDF)
+    map.raster <- rasterFromXYZ(mapDF)
+    
+    outDF$MAT <- extract(mat.raster, freqDF)
+    outDF$MAP <- extract(map.raster, freqDF)
+    
+    ### plotting script
+    if (to.plot == T) {
+        ### australia polygon
+        aus.poly <- ne_countries(scale = "medium", 
+                                 country = "Australia", 
+                                 returnclass = "sf")
+        
+        
+        ### plot map
+        p1 <- ggplot(data=aus.poly)+
+            geom_point(outDF, 
+                       mapping=aes(x=Lon, y=Lat, 
+                                   fill=as.character(freq)),
+                       pch=21)+
+            geom_sf(fill=NA)+
+            theme_linedraw() +
+            theme(panel.grid.minor=element_blank(),
+                  axis.text.x=element_text(size=12),
+                  axis.title.x=element_text(size=14),
+                  axis.text.y=element_text(size=12),
+                  axis.title.y=element_text(size=14),
+                  legend.text=element_text(size=12),
+                  legend.title=element_text(size=14),
+                  panel.grid.major=element_blank(),
+                  legend.position="bottom",
+                  legend.box = 'vertical',
+                  legend.box.just = 'left')+
+            ylim(-45, -10)+
+            xlim(100,160)
+        
+        pdf(paste0("output/AEKOS_2007_site.pdf"))
+        plot(p1)
+        dev.off()
+        
+        pdf(paste0("output/global_whittaker_diagram_with_AEKOS.pdf"), width=10, height=6)
+        p1 <- whittaker_base_plot(color_palette = NULL)
+        
+        p2 <- p1 + 
+            geom_point(outDF, 
+                       mapping=aes(x=MAT, y=MAP/10),
+                       pch=19)+
+            theme(legend.position = c(0.15, 0.65),
+                  panel.background = element_blank(),
+                  panel.grid.major = element_line(gray(0.7)),
+                  panel.border = element_rect(fill = NA))
+        
+        plot(p2)
+        dev.off()
+        
+    }
     
     ### read individual plant data
-    indDF1 <- fread(paste0(sourceDir, "Individual-Plants/Individual-Plants_1.csv"))
-    indDF2 <- fread(paste0(sourceDir, "Individual-Plants/Individual-Plants_2.csv"))
-    indDF3 <- fread(paste0(sourceDir, "Individual-Plants/Individual-Plants_3.csv"))
-    indDF4 <- fread(paste0(sourceDir, "Individual-Plants/Individual-Plants_4.csv"))
-    indDF5 <- fread(paste0(sourceDir, "Individual-Plants/Individual-Plants_5.csv"))
-    indDF6 <- fread(paste0(sourceDir, "Individual-Plants/Individual-Plants_6.csv"))
+    indDF1 <- fread(paste0(destDir, "/AEKOS_Subset_Australian_Plant_Frequency_and_Cover_2017/data/Individual-Plants/Individual-Plants_1.csv"))
+    indDF2 <- fread(paste0(destDir, "/AEKOS_Subset_Australian_Plant_Frequency_and_Cover_2017/data/Individual-Plants/Individual-Plants_2.csv"))
+    indDF3 <- fread(paste0(destDir, "/AEKOS_Subset_Australian_Plant_Frequency_and_Cover_2017/data/Individual-Plants/Individual-Plants_3.csv"))
+    indDF4 <- fread(paste0(destDir, "/AEKOS_Subset_Australian_Plant_Frequency_and_Cover_2017/data/Individual-Plants/Individual-Plants_4.csv"))
+    indDF5 <- fread(paste0(destDir, "/AEKOS_Subset_Australian_Plant_Frequency_and_Cover_2017/data/Individual-Plants/Individual-Plants_5.csv"))
+    indDF6 <- fread(paste0(destDir, "/AEKOS_Subset_Australian_Plant_Frequency_and_Cover_2017/data/Individual-Plants/Individual-Plants_6.csv"))
     
     indDF1 <- indDF1[-1,]
     indDF2 <- indDF2[-1,]
@@ -278,7 +330,7 @@ process_AEKOS_Subset_Australian_Plant_Frequency_and_Cover_2017 <- function(sourc
     combined_plot <- plot_grid(p1, p2, p3, p4, p5, p6, 
                                ncol=2, align="vh", axis = "l")
     
-    save_plot(paste0(outDir, "individual_DBH_height.pdf"),
+    save_plot(paste0("output/AEKOS_2007_individual_DBH_height.pdf"),
               combined_plot, base_width=10, base_height = 12)
     
     
@@ -309,7 +361,7 @@ process_AEKOS_Subset_Australian_Plant_Frequency_and_Cover_2017 <- function(sourc
         xlab("Mean DBH (cm)")+
         ylab("Number of plants per site")
     
-    pdf(paste0(outDir, "plot_site_DBH_stem_density.pdf"))
+    pdf(paste0("output/AEKOS_2007_plot_site_DBH_stem_density.pdf"))
     plot(p1)
     dev.off()
     
@@ -352,23 +404,23 @@ process_AEKOS_Subset_Australian_Plant_Frequency_and_Cover_2017 <- function(sourc
     
     
     ### read in population datasets
-    popDF1 <- fread(paste0(sourceDir, "Vegetation-Populations/Vegetation-Populations_1.csv"))
-    popDF2 <- fread(paste0(sourceDir, "Vegetation-Populations/Vegetation-Populations_2.csv"))
-    popDF3 <- fread(paste0(sourceDir, "Vegetation-Populations/Vegetation-Populations_3.csv"))
-    popDF4 <- fread(paste0(sourceDir, "Vegetation-Populations/Vegetation-Populations_4.csv"))
-    popDF5 <- fread(paste0(sourceDir, "Vegetation-Populations/Vegetation-Populations_5.csv"))
-    popDF6 <- fread(paste0(sourceDir, "Vegetation-Populations/Vegetation-Populations_6.csv"))
-    popDF7 <- fread(paste0(sourceDir, "Vegetation-Populations/Vegetation-Populations_7.csv"))
-    popDF8 <- fread(paste0(sourceDir, "Vegetation-Populations/Vegetation-Populations_8.csv"))
-    popDF9 <- fread(paste0(sourceDir, "Vegetation-Populations/Vegetation-Populations_9.csv"))
-    popDF10 <- fread(paste0(sourceDir, "Vegetation-Populations/Vegetation-Populations_10.csv"))
-    popDF11 <- fread(paste0(sourceDir, "Vegetation-Populations/Vegetation-Populations_11.csv"))
-    popDF12 <- fread(paste0(sourceDir, "Vegetation-Populations/Vegetation-Populations_12.csv"))
-    popDF13 <- fread(paste0(sourceDir, "Vegetation-Populations/Vegetation-Populations_13.csv"))
-    popDF14 <- fread(paste0(sourceDir, "Vegetation-Populations/Vegetation-Populations_14.csv"))
-    popDF15 <- fread(paste0(sourceDir, "Vegetation-Populations/Vegetation-Populations_15.csv"))
-    popDF16 <- fread(paste0(sourceDir, "Vegetation-Populations/Vegetation-Populations_16.csv"))
-    popDF17 <- fread(paste0(sourceDir, "Vegetation-Populations/Vegetation-Populations_17.csv"))
+    popDF1 <- fread(paste0(destDir, "/AEKOS_Subset_Australian_Plant_Frequency_and_Cover_2017/data/Vegetation-Populations/Vegetation-Populations_1.csv"))
+    popDF2 <- fread(paste0(destDir, "/AEKOS_Subset_Australian_Plant_Frequency_and_Cover_2017/data/Vegetation-Populations/Vegetation-Populations_2.csv"))
+    popDF3 <- fread(paste0(destDir, "/AEKOS_Subset_Australian_Plant_Frequency_and_Cover_2017/data/Vegetation-Populations/Vegetation-Populations_3.csv"))
+    popDF4 <- fread(paste0(destDir, "/AEKOS_Subset_Australian_Plant_Frequency_and_Cover_2017/data/Vegetation-Populations/Vegetation-Populations_4.csv"))
+    popDF5 <- fread(paste0(destDir, "/AEKOS_Subset_Australian_Plant_Frequency_and_Cover_2017/data/Vegetation-Populations/Vegetation-Populations_5.csv"))
+    popDF6 <- fread(paste0(destDir, "/AEKOS_Subset_Australian_Plant_Frequency_and_Cover_2017/data/Vegetation-Populations/Vegetation-Populations_6.csv"))
+    popDF7 <- fread(paste0(destDir, "/AEKOS_Subset_Australian_Plant_Frequency_and_Cover_2017/data/Vegetation-Populations/Vegetation-Populations_7.csv"))
+    popDF8 <- fread(paste0(destDir, "/AEKOS_Subset_Australian_Plant_Frequency_and_Cover_2017/data/Vegetation-Populations/Vegetation-Populations_8.csv"))
+    popDF9 <- fread(paste0(destDir, "/AEKOS_Subset_Australian_Plant_Frequency_and_Cover_2017/data/Vegetation-Populations/Vegetation-Populations_9.csv"))
+    popDF10 <- fread(paste0(destDir, "/AEKOS_Subset_Australian_Plant_Frequency_and_Cover_2017/data/Vegetation-Populations/Vegetation-Populations_10.csv"))
+    popDF11 <- fread(paste0(destDir, "/AEKOS_Subset_Australian_Plant_Frequency_and_Cover_2017/data/Vegetation-Populations/Vegetation-Populations_11.csv"))
+    popDF12 <- fread(paste0(destDir, "/AEKOS_Subset_Australian_Plant_Frequency_and_Cover_2017/data/Vegetation-Populations/Vegetation-Populations_12.csv"))
+    popDF13 <- fread(paste0(destDir, "/AEKOS_Subset_Australian_Plant_Frequency_and_Cover_2017/data/Vegetation-Populations/Vegetation-Populations_13.csv"))
+    popDF14 <- fread(paste0(destDir, "/AEKOS_Subset_Australian_Plant_Frequency_and_Cover_2017/data/Vegetation-Populations/Vegetation-Populations_14.csv"))
+    popDF15 <- fread(paste0(destDir, "/AEKOS_Subset_Australian_Plant_Frequency_and_Cover_2017/data/Vegetation-Populations/Vegetation-Populations_15.csv"))
+    popDF16 <- fread(paste0(destDir, "/AEKOS_Subset_Australian_Plant_Frequency_and_Cover_2017/data/Vegetation-Populations/Vegetation-Populations_16.csv"))
+    popDF17 <- fread(paste0(destDir, "/AEKOS_Subset_Australian_Plant_Frequency_and_Cover_2017/data/Vegetation-Populations/Vegetation-Populations_17.csv"))
     
     ### remove comments
     popDF1 <- popDF1[-1,]
@@ -645,7 +697,15 @@ process_AEKOS_Subset_Australian_Plant_Frequency_and_Cover_2017 <- function(sourc
     ### incomplete match of data variables (a lot missing data, for different variables).
     ### We will need to figure out a way to process the data.
     
+    ### whether to delete the downloaded data or not
+    if (remove.after.processing==T) {
+        system(paste0("rm ", destDir, "/AusTrait.zip"))
+        system(paste0("rm -r ", destDir, "/AusTrait"))
+        system(paste0("rm -r ", destDir, "/__MACOSX"))
+        
+    }
     
+    return(outDF)
         
     # end
 

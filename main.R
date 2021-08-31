@@ -38,39 +38,53 @@ Ausplot_on_Whittaker_diagram(awap = awapDF)
 
 ##########################################################################
 ### AusTrait dataset
-AustraitDF <- download_AusTrait_from_CloudStor(sourceDir="DAVE_data/Raw_data",
-                                               destDir="data/Raw_data",
-                                               awap=awapDF,
-                                               to.plot=T,
-                                               remove.after.processing=T)
+austrait.site <- download_AusTrait_from_CloudStor(sourceDir="DAVE_data/Raw_data",
+                                                  destDir="data/Raw_data",
+                                                  awap=awapDF,
+                                                  to.plot=T,
+                                                  remove.after.processing=T)
 
 ##########################################################################
 #### CSIRO Permanent rainforest plot North Queensland 
-process_CSIRO_North_Queesland_rainforest_permanent_plots(sourceDir="DAVE_data/Raw_data",
-                                                         destDir="data/Raw_data",
-                                                         awap=awapDF,
-                                                         to.plot=T,
-                                                         remove.after.processing=T)
+QLD.rainforest.site <- process_CSIRO_North_Queesland_rainforest_permanent_plots(sourceDir="DAVE_data/Raw_data",
+                                                                                destDir="data/Raw_data",
+                                                                                awap=awapDF,
+                                                                                to.plot=T,
+                                                                                remove.after.processing=T)
+
+
+##########################################################################
+#### AEKOS subset Australian vegetation frequency and cover 2017
+### a messy dataset
+aekos.site <- process_AEKOS_Subset_Australian_Plant_Frequency_and_Cover_2017(sourceDir="DAVE_data/Raw_data",
+                                                                             destDir="data/Raw_data",
+                                                                             awap=awapDF,
+                                                                             to.plot=T,
+                                                                             remove.after.processing=T)
+
+
 
 
 
 ##########################################################################
 ### merge all known datasets and make basic plots
-All_data_merge_and_plot(awap=awapDF)
+All_data_merge_and_plot(sourceDir="DAVE_data/Raw_data",
+                        destDir="data/Raw_data",
+                        awap=awapDF,
+                        austrait.site=austrait.site,
+                        QLD.rainforest.site=QLD.rainforest.site,
+                        aekos.site=aekos.site)
+
+
 
 ##########################################################################
 #prepare_NVIS_Australia_vegetation_classification(awap = awapDF,
 #                                                 destDir="output")
 
+
 ##########################################################################
 prepare_forest_of_Australia_2013()
 
-
-
-##########################################################################
-#### AEKOS subset Australian vegetation frequency and cover 2017
-#process_AEKOS_Subset_Australian_Plant_Frequency_and_Cover_2017(sourceDir="data/AEKOS_Subset_Australian_Plant_Frequency_and_Cover_2017/data/",
-#                                                               outDir="output/AEKOS_Subset_Australian_Plant_Frequency_and_Cover_2017/")
 
 
 
