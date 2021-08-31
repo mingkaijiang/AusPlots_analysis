@@ -2,7 +2,8 @@ All_data_merge_and_plot <- function (sourceDir,
                                      destDir,
                                      awap,
                                      austrait.site,
-                                     QLD.rainforest.site) {
+                                     QLD.rainforest.site,
+                                     aekos.site) {
     
     ### Steps:
     ### 1. Pass in AWAP MAT and MAP data across Australia

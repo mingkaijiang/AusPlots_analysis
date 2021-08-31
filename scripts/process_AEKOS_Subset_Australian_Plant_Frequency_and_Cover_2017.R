@@ -699,8 +699,8 @@ process_AEKOS_Subset_Australian_Plant_Frequency_and_Cover_2017 <- function(sourc
     
     ### whether to delete the downloaded data or not
     if (remove.after.processing==T) {
-        system(paste0("rm ", destDir, "/AusTrait.zip"))
-        system(paste0("rm -r ", destDir, "/AusTrait"))
+        system(paste0("rm ", destDir, "/AEKOS_Subset_Australian_Plant_Frequency_and_Cover_2017.zip"))
+        system(paste0("rm -r ", destDir, "/AEKOS_Subset_Australian_Plant_Frequency_and_Cover_2017"))
         system(paste0("rm -r ", destDir, "/__MACOSX"))
         
     }
