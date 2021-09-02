@@ -37,6 +37,12 @@ awapDF <- prepare_AWAP_climate()
 Ausplot_on_Whittaker_diagram(awap = awapDF)
 
 ##########################################################################
+#prepare_NVIS_Australia_vegetation_classification(awap = awapDF,
+#                                                 destDir="output")
+
+
+
+##########################################################################
 ### AusTrait dataset
 austrait.site <- download_AusTrait_from_CloudStor(sourceDir="DAVE_data/Raw_data",
                                                   destDir="data/Raw_data",
@@ -76,10 +82,6 @@ All_data_merge_and_plot(sourceDir="DAVE_data/Raw_data",
                         aekos.site=aekos.site)
 
 
-
-##########################################################################
-#prepare_NVIS_Australia_vegetation_classification(awap = awapDF,
-#                                                 destDir="output")
 
 
 ##########################################################################
