@@ -36,10 +36,14 @@ awapDF <- prepare_AWAP_climate()
 ### Ausplot site projected to Whittaker diagram
 Ausplot_on_Whittaker_diagram(awap = awapDF)
 
-##########################################################################
-#prepare_NVIS_Australia_vegetation_classification(awap = awapDF,
-#                                                 destDir="output")
 
+
+##########################################################################
+Australia_Whittaker_diagram(sourceDir="DAVE_data/Raw_data",
+                            destDir="data/Raw_data",
+                            awap=awapDF,
+                            to.plot=T,
+                            remove.after.processing=T)
 
 
 ##########################################################################
@@ -83,7 +87,10 @@ All_data_merge_and_plot(sourceDir="DAVE_data/Raw_data",
 
 
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> cdb27e7068132023ee4da67acb9891921a14d371
 ##########################################################################
 prepare_forest_of_Australia_2013()
 
