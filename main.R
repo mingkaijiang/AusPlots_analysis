@@ -33,18 +33,15 @@ if (first.cloudstor == "T") {
 awapDF <- prepare_AWAP_climate()
 
 ##########################################################################
-### Ausplot site projected to Whittaker diagram
-Ausplot_on_Whittaker_diagram(awap = awapDF)
-
-
-
-##########################################################################
 Australia_Whittaker_diagram(sourceDir="DAVE_data/Raw_data",
                             destDir="data/Raw_data",
                             awap=awapDF,
                             to.plot=T,
                             remove.after.processing=T)
 
+##########################################################################
+### Ausplot site projected to Whittaker diagram
+Ausplot_on_Whittaker_diagram(awap = awapDF)
 
 ##########################################################################
 ### AusTrait dataset
