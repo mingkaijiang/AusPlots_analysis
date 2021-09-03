@@ -17,8 +17,7 @@ Australia_Whittaker_diagram <- function (sourceDir,
     file.path <- paste0(destDir, "/NVIS_V6/GRID_NVIS6_0_AUST_EXT_MVG/aus6_0e_mvg/")
     
     aus.raster <- raster(paste0(file.path, "w001000.adf"))
-    #myDF2 <- raster(paste0(file.path, "w001001.adf"))
-    
+
     ### process awap data 
     mapDF <- awap[,c("lon", "lat", "MAP")]
     matDF <- awap[,c("lon", "lat", "Tmn")]
@@ -78,7 +77,7 @@ Australia_Whittaker_diagram <- function (sourceDir,
     
     test.raster <- aus.raster == 1
     out.raster <- mask(sub.raster, test.raster, maskvalue=1)
-    test <- rasterToPoints(test.raster)
+    test <- rasterToPoints(aus.raster)
     
     plot(test.raster)
     
