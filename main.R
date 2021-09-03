@@ -36,7 +36,6 @@ awapDF <- prepare_AWAP_climate()
 Australia_Whittaker_diagram(sourceDir="DAVE_data/Raw_data",
                             destDir="data/Raw_data",
                             awap=awapDF,
-                            to.plot=T,
                             remove.after.processing=T)
 
 ##########################################################################
