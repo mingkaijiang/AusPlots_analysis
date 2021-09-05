@@ -33,6 +33,8 @@ if (first.cloudstor == "T") {
 awapDF <- prepare_AWAP_climate()
 
 ##########################################################################
+destDir="data/Raw_data"
+awap=awapDF
 Australia_Whittaker_diagram(sourceDir="DAVE_data/Raw_data",
                             destDir="data/Raw_data",
                             awap=awapDF,
