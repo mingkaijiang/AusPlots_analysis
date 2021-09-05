@@ -104,6 +104,8 @@ Australia_Whittaker_diagram <- function (sourceDir,
     extract_climate_per_NVIS_vegetation_type(n.lyr.x)
     
     
+    ### upload the vegetation group files
+    
     
  
     ### whether to delete the downloaded data or not
