@@ -18,6 +18,9 @@ Australia_Whittaker_diagram <- function (sourceDir,
     ### raster
     aus.raster <- raster(paste0(file.path, "w001000.adf"))
     
+    ### aggregate to obtain large file
+    #aus.raster.agg <- aggregate(aus.raster, fact=5, fun="modal")
+    
     ### crs
     crs.aus <- crs(aus.raster)
     e <- extent(aus.raster)
@@ -29,7 +32,7 @@ Australia_Whittaker_diagram <- function (sourceDir,
     #y.range <- seq(e[3], e[4], (e[4]-e[3])/n.lyr.y)
     
     ### reproject
-    crs.test <- "+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0"
+    #crs.test <- "+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0"
     
     rasterOptions(memfrac=.3)
     
@@ -47,20 +50,25 @@ Australia_Whittaker_diagram <- function (sourceDir,
             sub.raster <- crop(aus.raster, e.sub)
             
             ### re-project
-            sub.reproj.raster <- projectRaster(sub.raster, crs=crs.test)
+            #sub.reproj.raster <- projectRaster(sub.raster, crs=crs.test,
+            #                                   method="ngb")
             
             ### convert into xy
-            sub.points <- rasterToPoints(sub.reproj.raster)
+            sub.points <- rasterToPoints(sub.raster)
             
             ### convert to dataframe
             sub.points <- as.data.frame(sub.points)
             
-            ### assign the nearest 0.5 degree
-            sub.points$Lon1 <- as.numeric(gsub("\\..*", "", sub.points$x))
-            sub.points$Lon2 <- as.numeric(paste0("0.", gsub(".*\\.", "", sub.points$x)))
+            ### convert from AEA to lonlat
+            sub.points$Lon0 <- (13200000+sub.points$x) / (1e+5)
+            sub.points$Lat0 <- sub.points$y / (1e+5)
             
-            sub.points$Lat1 <- as.numeric(gsub("\\..*", "", sub.points$y))
-            sub.points$Lat2 <- as.numeric(paste0("0.", gsub(".*\\.", "", sub.points$y)))
+            ### assign the nearest 0.5 degree
+            sub.points$Lon1 <- as.numeric(gsub("\\..*", "", sub.points$Lon0))
+            sub.points$Lon2 <- as.numeric(paste0("0.", gsub(".*\\.", "", sub.points$Lon0)))
+            
+            sub.points$Lat1 <- as.numeric(gsub("\\..*", "", sub.points$Lat0))
+            sub.points$Lat2 <- as.numeric(paste0("0.", gsub(".*\\.", "", sub.points$Lat0)))
             
             sub.points$Lon <- ifelse(sub.points$Lon2<0.475, sub.points$Lon1-1+0.975,
                                      ifelse(sub.points$Lon2>=0.975, sub.points$Lon1+0.975,
@@ -74,6 +82,8 @@ Australia_Whittaker_diagram <- function (sourceDir,
             sub.points$Lon2 <- NULL
             sub.points$Lat1 <- NULL
             sub.points$Lat2 <- NULL
+            sub.points$Lon0 <- NULL
+            sub.points$Lat0 <- NULL
             
             ### merge with awapDF
             outDF <- merge(sub.points, awap, by.x=c("Lon", "Lat"), 
@@ -84,7 +94,7 @@ Australia_Whittaker_diagram <- function (sourceDir,
             saveRDS(outDF, paste0("output/NVIS_v6_AWAP_df", i, #"_", j, 
                                   ".rds"))
             
-            rm(outDF, sub.points, sub.reproj.raster, sub.raster)
+            rm(outDF, sub.points, sub.raster)
         #}
         
     }

@@ -61,4 +61,5 @@ vignettes/*.pdf
 *.adf
 *.png
 *.rds
+*.DS_Store
 
