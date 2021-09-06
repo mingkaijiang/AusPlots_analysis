@@ -35,10 +35,12 @@ awapDF <- prepare_AWAP_climate()
 ##########################################################################
 destDir="data/Raw_data"
 awap=awapDF
-Australia_Whittaker_diagram(sourceDir="DAVE_data/Raw_data",
-                            destDir="data/Raw_data",
-                            awap=awapDF,
-                            remove.after.processing=T)
+Australia_Whittaker_diagram_preprocessing(sourceDir="DAVE_data/Raw_data",
+                                          destDir="data/Raw_data",
+                                          awap=awapDF,
+                                          remove.after.processing=T)
+
+Australia_Whittaker_diagram_NVIS()
 
 ##########################################################################
 ### Ausplot site projected to Whittaker diagram

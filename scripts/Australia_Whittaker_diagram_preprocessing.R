@@ -1,7 +1,7 @@
-Australia_Whittaker_diagram <- function (sourceDir,
-                                         destDir,
-                                         awap,
-                                         remove.after.processing=T) {
+Australia_Whittaker_diagram_preprocessing <- function (sourceDir,
+                                                       destDir,
+                                                       awap,
+                                                       remove.after.processing=T) {
  
     ### download the zip file first
     ### downloading this dataset takes ages!
@@ -104,7 +104,7 @@ Australia_Whittaker_diagram <- function (sourceDir,
     extract_climate_per_NVIS_vegetation_type(n.lyr.x)
     
     
-    ### upload the vegetation group files
+    
     
     
  

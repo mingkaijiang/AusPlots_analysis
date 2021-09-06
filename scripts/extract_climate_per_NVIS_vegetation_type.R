@@ -4,7 +4,7 @@ extract_climate_per_NVIS_vegetation_type <- function (n.lyr.x) {
     ### the vegetation group is labelled as 0 - 99
     
         ### loop through each region DF
-    for (j in 2:99) {
+    for (j in 0:99) {
         
         ### create empty outDF
         outDF <- c()
@@ -26,6 +26,10 @@ extract_climate_per_NVIS_vegetation_type <- function (n.lyr.x) {
     }
     
     
+    ### save to cloudstor, need to zip the file first
+    cloud_put(file_name="NVIS_v6_AWAP_veg0-99.zip", 
+              local_file="output/NVIS_v6_AWAP_veg0-99.zip",
+              path="DAVE_data/Processed")
     
     
 }
