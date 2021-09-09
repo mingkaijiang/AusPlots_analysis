@@ -112,7 +112,7 @@ Australia_Whittaker_diagram_NVIS <- function () {
     
     for (i in veg.list) {
         p1 <- ggplot(plotDF[plotDF$w001000==i,], 
-                     aes(x=Tmn, y=MAP) ) +
+                     aes(x=MAP, y=Tmn) ) +
             #stat_density_2d(aes(fill = ..level..), 
             #                geom = "polygon", colour="white")+
             geom_density_2d_filled(alpha=0.5) + 
@@ -129,8 +129,8 @@ Australia_Whittaker_diagram_NVIS <- function () {
                   legend.position="right",
                   legend.box = 'vertical',
                   legend.box.just = 'left')+
-            #xlim(c(5, 35))+
-            #ylim(c(0, 3000))+
+            ylim(c(5, 35))+
+            xlim(c(0, 2500))+
             ggtitle(paste0(vegDF[vegDF$vegID==i, "vegName"]));p1
         
         plot(p1)
@@ -146,8 +146,8 @@ Australia_Whittaker_diagram_NVIS <- function () {
         geom_density_2d_filled() + 
         geom_density_2d(size = 0.25, colour = "white")+
         facet_wrap(vars(w001000))+
-        xlim(c(5, 35))+
-        ylim(c(0, 3000))+
+        ylim(c(5, 35))+
+        xlim(c(0, 2500))+
         theme_linedraw() +
         theme(panel.grid.minor=element_blank(),
               axis.text.x=element_text(size=12),
