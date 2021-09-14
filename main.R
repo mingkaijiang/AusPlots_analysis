@@ -74,6 +74,15 @@ aekos.site <- process_AEKOS_Subset_Australian_Plant_Frequency_and_Cover_2017(sou
 
 
 
+##########################################################################
+#### sPlot
+### a messy dataset
+splot.site <- process_splot_Australia(sourceDir="DAVE_data/Raw_data",
+                                      destDir="data/Raw_data",
+                                      awap=awapDF,
+                                      to.plot=T,
+                                      remove.after.processing=T)
+
 
 
 ##########################################################################
