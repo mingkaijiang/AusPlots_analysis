@@ -1,8 +1,14 @@
 Australia_Whittaker_diagram_NVIS <- function () {
  
-    
-    dir.create("output/NVIS")
-    dir.create("output/NVIS/cleaned")
+    ### create directories
+    if (!dir.exists("output/NVIS")) {
+        dir.create("output/NVIS")
+        
+        if (!dir.exists("output/NVIS/cleaned")) {
+            dir.create("output/NVIS/cleaned")
+            
+        }
+    }
     
     ### The vegetation group 
     #• MVG 1 - Rainforests and vine thickets
@@ -97,7 +103,37 @@ Australia_Whittaker_diagram_NVIS <- function () {
         plotDF <- rbind(plotDF, tmpDF)
         
     }
+    
+    ### remove NAs
+    plotDF <- plotDF[!is.na(plotDF$MAP),]
+    plotDF <- plotDF[!is.na(plotDF$Tmn),]
+    
+    ### pass into a different dataframe
+    awapDF <- plotDF
         
+    ### for kde calculation
+    require(ks)
+    
+    ### loop through the revised list of vegetation groups
+    ### create a two column data frame for kde calculations
+    DF <- data.frame("MAT" = awapDF$Tmn,
+                     "MAP" = awapDF$MAP)
+    
+    l <- nrow(DF)
+    
+    H <- Hpi(x=DF)      # optimal bandwidth estimation
+    est<- kde(x=DF, H=H, compute.cont=TRUE)     # kernel density estimation
+    
+    # set contour probabilities for drawing contour levels
+    cl<-contourLevels(est, prob=c(0.0001), approx=TRUE)
+    
+    awapKDE <- data.frame("MAT" = rep(est$eval.points[[1]], 
+                                      length(est$eval.points[[2]])),
+                          "MAP" = rep(est$eval.points[[2]], 
+                                      each = length(est$eval.points[[1]])),
+                          "KDE" = as.vector(est$estimate))
+    
+    awapKDE <- subset(awapKDE, KDE > cl)
     
     ### read in the Topt dataset and merge with the plot DF
     ### not a good predictor, because Topt depends linearly on Tmean,
@@ -105,18 +141,22 @@ Australia_Whittaker_diagram_NVIS <- function () {
     #plotDF <- read_Topt_dataset_and_merge(inDF=plotDF)
     
     ### read in predictability scores
-    plotDF <- read_predictability_and_merge(inDF=plotDF)
+    #plotDF <- read_predictability_and_merge(inDF=plotDF)
     
     ### make plotting
     pdf(paste0("output/NVIS/cleaned/vegetation_space_veg_individual.pdf"))
     
     for (i in veg.list) {
         p1 <- ggplot(plotDF[plotDF$w001000==i,], 
-                     aes(x=Tmn, y=MAP) ) +
+                     aes(x=MAP, y=Tmn) ) +
             #stat_density_2d(aes(fill = ..level..), 
             #                geom = "polygon", colour="white")+
             geom_density_2d_filled(alpha=0.5) + 
             geom_density_2d(size = 0.25, colour = "black")+
+            geom_density_2d(data=awapKDE, aes(x=MAP, y=MAT), 
+                       #pch=21, 
+                       colour=alpha("red",1.0),
+                       size=0.1)+
             theme_linedraw() +
             theme(panel.grid.minor=element_blank(),
                   axis.text.x=element_text(size=12),
@@ -129,9 +169,9 @@ Australia_Whittaker_diagram_NVIS <- function () {
                   legend.position="right",
                   legend.box = 'vertical',
                   legend.box.just = 'left')+
-            #xlim(c(5, 35))+
-            #ylim(c(0, 3000))+
-            ggtitle(paste0(vegDF[vegDF$vegID==i, "vegName"]));p1
+            ylim(c(5, 35))+
+            xlim(c(0, 3500))+
+            ggtitle(paste0(vegDF[vegDF$vegID==i, "vegName"]))
         
         plot(p1)
 
@@ -146,8 +186,8 @@ Australia_Whittaker_diagram_NVIS <- function () {
         geom_density_2d_filled() + 
         geom_density_2d(size = 0.25, colour = "white")+
         facet_wrap(vars(w001000))+
-        xlim(c(5, 35))+
-        ylim(c(0, 3000))+
+        ylim(c(5, 35))+
+        xlim(c(0, 2500))+
         theme_linedraw() +
         theme(panel.grid.minor=element_blank(),
               axis.text.x=element_text(size=12),
