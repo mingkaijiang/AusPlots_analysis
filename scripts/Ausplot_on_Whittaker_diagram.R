@@ -6,6 +6,23 @@ Ausplot_on_Whittaker_diagram <- function (awap) {
     
     ausplot.sites <- my.ausplots.data$site.info
     
+    site.name <- unique(ausplot.sites$site_location_name)
+    site.table <- table(ausplot.sites$site_location_name)
+    rep.sites <- site.table[site.table>1]
+    rep.sites.names <- names(site.table[site.table>1])
+    repDF <- data.frame(rep.sites)
+    colnames(repDF) <- c("site_location_name", "visit_repeat")
+    
+    rep.site.data <- ausplot.sites[ausplot.sites$site_location_name%in%rep.sites.names,]
+    
+    plotDF <- ausplot.sites[!duplicated(ausplot.sites$site_location_name),]
+    plotDF <- merge(plotDF, repDF, by=c("site_location_name"),
+                    all.x=T)
+    plotDF$visit_repeat <- ifelse(is.na(plotDF$visit_repeat), 1, plotDF$visit_repeat)
+    plotDF$visit_repeat <- as.character(plotDF$visit_repeat)
+    
+    #sites.list <- unique(my.ausplots.data$veg.vouch$site_location_name)
+    
     ### potential multiple site visits highlight
     ausplot.sites$visit_repeat <- ifelse(ausplot.sites$visit_start_date==ausplot.sites$visit_end_date, "1", "2")
 
@@ -37,7 +54,7 @@ Ausplot_on_Whittaker_diagram <- function (awap) {
     
     pdf(paste0("output/AusPlots_spatial_coverage_visit.pdf"), width=10, height=6)
     p1 <- ggplot(data=aus.poly)+
-        geom_point(ausplot.sites, 
+        geom_point(plotDF, 
                    mapping=aes(x=longitude, y=latitude, 
                                fill=visit_repeat),
                    pch=21)+
@@ -55,8 +72,8 @@ Ausplot_on_Whittaker_diagram <- function (awap) {
               legend.box = 'vertical',
               legend.box.just = 'left')+
         scale_fill_manual(name="Visit",
-                          values=c("1" = "yellow", "2" = "black"),
-                          labels=c("1" = "Single", "2" = "Multiple"))+
+                          values=c("1" = "yellow", "2" = "orange", "3" = "red"),
+                          labels=c("1" = "Single", "2" = "2", "3" = "3"))+
         ylim(-45, -10)
     
     plot(p1)
